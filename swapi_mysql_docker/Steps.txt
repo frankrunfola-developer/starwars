@@ -1,0 +1,15 @@
+docker compose up --build
+
+This brings up:
+    -mysql (root password rootpw, DB swapi, user swapi/swapipw)
+    -app which automatically runs swapi_to_mysql.py
+    -Check the data (from your host, requires a MySQL client):
+
+Check the data (from your host, requires a MySQL client):
+    Inside docker
+        mysql -h 127.0.0.1 -P 3306 -uswapi -pswapipw swapi ^
+          -e "SELECT id, name, birth_year, gender FROM people LIMIT 10;"
+    Inside Bash
+        docker run --rm -it --network swapi_mysql_docker_default mysql:8.0 ^
+        mysql -hmysql -uswapi -pswapipw -D swapi ^
+        -e "SELECT id, name, birth_year, gender FROM people LIMIT 10;"

@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: swapi-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpw
+      MYSQL_DATABASE: swapi
+      MYSQL_USER: swapi
+      MYSQL_PASSWORD: swapipw
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-prootpw" ]
+      interval: 5s
+      timeout: 2s
+      retries: 20
+
+  app:
+    build: ./app
+    container_name: swapi-app
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_USER: swapi
+      DB_PASSWORD: swapipw
+      DB_NAME: swapi
+      SWAPI_ENTITY: people
+      SWAPI_PAGES: "3" # pulls 3 pages
+    command: [ "python", "swapi_to_mysql.py" ]
+    # uncomment the next line to see code changes without rebuilding
+    # volumes:
+    #   - ./app:/app
+
+volumes:
+  dbdata:
